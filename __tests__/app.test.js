@@ -21,4 +21,8 @@ describe('/api', () => {
         });
     });
   });
+
+  describe('/users/:username', () => {
+    it('GET - 200 - responds with an object of the user associated with the given username', () => {});
+  });
 });
