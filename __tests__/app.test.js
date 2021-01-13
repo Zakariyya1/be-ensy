@@ -8,7 +8,7 @@ afterAll(() => connection.destroy());
 
 describe('/api', () => {
   describe('/topics', () => {
-    it('responds with an array of topics', () => {
+    it('GET - 200 - responds with an array of topics', () => {
       return request(app)
         .get('/api/topics')
         .expect(200)
