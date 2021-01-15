@@ -1,16 +1,8 @@
 const {
-  formatDate,
   formattedArticleData,
   createReferenceObject,
   formattedcommentData,
 } = require('../db/utils/data-manipulation');
-
-describe('formatDate', () => {
-  it('returns JavaScript date when passed the unix date', () => {
-    let jsDate = `1970-01-01T00:00:00.002Z`;
-    expect(formatDate(2)).toEqual(new Date(2));
-  });
-});
 
 describe('formattedArticleData', () => {
   it('returns object with value stored on created_at key converted to JavaScript Date', () => {
@@ -24,11 +16,36 @@ describe('formattedArticleData', () => {
         created_at: 1471522072389,
       },
     ];
-    // const jsDate = new Date(1471522072389);
     let jsData = formattedArticleData(userData);
     expect(jsData[0].created_at).toEqual(new Date(1471522072389));
   });
+
+  it('ensures input data is not mutated', () => {
+    const article = [
+      {
+        title: 'Running a Node App',
+        topic: 'coding',
+        author: 'jessjelly',
+        body:
+          'This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.',
+        created_at: 1471522072389,
+      },
+    ];
+    const copyArticle = [
+      {
+        title: 'Running a Node App',
+        topic: 'coding',
+        author: 'jessjelly',
+        body:
+          'This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.',
+        created_at: 1471522072389,
+      },
+    ];
+    formattedArticleData(article);
+    expect(article).toEqual(copyArticle);
+  });
 });
+
 describe('createReferenceObject', () => {
   it('returns object with article_id key with its value as the title', () => {
     const userData = [
@@ -50,6 +67,7 @@ describe('createReferenceObject', () => {
     });
   });
 });
+
 describe('formattedcommentsData', () => {
   it('returns object with value stored on created_at key converted to JavaScript Date, and also changes belongs_to key to article_id', () => {
     const userData = [

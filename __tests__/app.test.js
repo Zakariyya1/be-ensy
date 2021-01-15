@@ -23,6 +23,18 @@ describe('/api', () => {
   });
 
   describe('/users/:username', () => {
-    it('GET - 200 - responds with an object of the user associated with the given username', () => {});
+    it('GET - 200 - responds with an object of the user associated with the given username', () => {
+      return request(app)
+        .get('/users/:username')
+        .expect(200)
+        .then((response) => {
+          expect(response.body).toEqual({
+            username: 'lurker',
+            name: 'do_nothing',
+            avatar_url:
+              'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+          });
+        });
+    });
   });
 });
