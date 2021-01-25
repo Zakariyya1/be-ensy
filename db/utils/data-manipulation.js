@@ -19,25 +19,28 @@ function formattedArticleData(articleData) {
 
 function createReferenceObject(arrayOfArticleData) {
   var referenceObject = {};
-  for (let i = 0; i < arrayOfArticleData.length; i++) {
-    referenceObject[arrayOfArticleData[i].title] =
-      arrayOfArticleData[i].article_id;
-  }
+
+  arrayOfArticleData.forEach((article) => {
+    referenceObject[article.title] = article.article_id;
+  });
 
   return referenceObject;
 }
 
 function formattedCommentData(commentsData, referenceObject) {
-  for (let i = 0; i < commentsData.length; i++) {
-    let formatted = new Date(commentsData[i].created_at);
-    commentsData[i].created_at = formatted;
-    commentsData[i].article_id = referenceObject[commentsData[i].belongs_to];
-    commentsData[i].author = commentsData[i].created_by;
-    delete commentsData[i].created_by;
-    delete commentsData[i].belongs_to;
-  }
+  let formattedComments = commentsData.map((comment) => {
+    const newComment = { ...comment };
 
-  return commentsData;
+    newComment.created_at = new Date(newComment.created_at);
+    newComment.author = newComment.created_by;
+    newComment.article_id = referenceObject[newComment.belongs_to];
+
+    delete newComment.created_by;
+    delete newComment.belongs_to;
+    return newComment;
+  });
+
+  return formattedComments;
 }
 
 module.exports = {

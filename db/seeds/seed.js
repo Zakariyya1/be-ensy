@@ -5,7 +5,6 @@ const {
   userData,
 } = require('../data/index.js');
 const {
-  formatDate,
   formattedArticleData,
   createReferenceObject,
   formattedCommentData,
