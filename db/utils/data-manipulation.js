@@ -27,7 +27,7 @@ function createReferenceObject(arrayOfArticleData) {
   return referenceObject;
 }
 
-function formattedcommentData(commentsData, referenceObject) {
+function formattedCommentData(commentsData, referenceObject) {
   for (let i = 0; i < commentsData.length; i++) {
     let formatted = new Date(commentsData[i].created_at);
     commentsData[i].created_at = formatted;
@@ -43,5 +43,5 @@ function formattedcommentData(commentsData, referenceObject) {
 module.exports = {
   formattedArticleData,
   createReferenceObject,
-  formattedcommentData,
+  formattedCommentData,
 };

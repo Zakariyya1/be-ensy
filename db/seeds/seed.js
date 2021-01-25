@@ -8,7 +8,7 @@ const {
   formatDate,
   formattedArticleData,
   createReferenceObject,
-  formattedcommentData,
+  formattedCommentData,
 } = require('../utils/data-manipulation');
 
 exports.seed = function (knex) {
@@ -28,7 +28,7 @@ exports.seed = function (knex) {
     })
     .then((insertedArticle) => {
       let referenceObject = createReferenceObject(insertedArticle);
-      let formattedComments = formattedcommentData(
+      let formattedComments = formattedCommentData(
         commentData,
         referenceObject
       );
