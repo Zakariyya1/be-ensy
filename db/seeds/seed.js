@@ -27,7 +27,6 @@ exports.seed = function (knex) {
       return knex('articles').insert(formattedData).returning('*');
     })
     .then((insertedArticle) => {
-      // console.log(insertedArticle);
       let referenceObject = createReferenceObject(insertedArticle);
       let formattedComments = formattedcommentData(
         commentData,
