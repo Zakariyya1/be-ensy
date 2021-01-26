@@ -1,7 +1,9 @@
 const { fetchAllTopics } = require('../models/topics-model');
 
 exports.getTopics = (req, res, next) => {
-  fetchAllTopics().then((topicsData) => {
-    res.send(topicsData);
-  });
+  fetchAllTopics()
+    .then((topics) => {
+      res.send({ topics });
+    })
+    .catch((err) => next(err));
 };

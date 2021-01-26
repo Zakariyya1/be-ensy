@@ -4,6 +4,6 @@ exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
 
   fetchArticle(article_id).then((article) => {
-    res.send(article);
+    res.send({ article });
   });
 };
