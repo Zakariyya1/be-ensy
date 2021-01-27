@@ -4,10 +4,12 @@ exports.handleCustomErr = (err, req, res, next) => {
 };
 
 exports.handlePSQLErr = (err, req, res, next) => {
-  const psqlCodes = ['42703', '22P02'];
+  const psqlCodes = ['42703', '22P02', '23502'];
 
   if (psqlCodes.includes(err.code)) {
     res.status(400).send({ msg: err.message.split(' - ')[1] });
+  } else if (err.code === '23503') {
+    res.status(404).send({ msg: err.message.split(' - ')[1] });
   } else {
     next(err);
   }

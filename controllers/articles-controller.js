@@ -1,4 +1,8 @@
-const { fetchArticle, updateArticle } = require('../models/articles-model');
+const {
+  fetchArticle,
+  updateArticle,
+  addCommentByArticleId
+} = require('../models/articles-model');
 
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -24,7 +28,7 @@ exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
 
-  createCommentByArticleId(article_id, username, body)
+  addCommentByArticleId(article_id, username, body)
     .then((comment) => {
       res.status(201).send({ comment });
     })

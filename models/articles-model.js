@@ -40,7 +40,17 @@ const updateArticle = (article_id, inc_votes) => {
     });
 };
 
+const addCommentByArticleId = (article_id, username, body) => {
+  const newComment = { author: username, body: body, article_id: article_id };
+
+  return connection('comments')
+    .insert(newComment)
+    .returning('*')
+    .then(([comment]) => comment);
+};
+
 module.exports = {
   fetchArticle,
-  updateArticle
+  updateArticle,
+  addCommentByArticleId
 };

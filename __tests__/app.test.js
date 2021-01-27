@@ -105,6 +105,79 @@ describe('/api', () => {
             });
           });
       });
+
+      it('400 - responds with an error message if there are no inc_votes', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('invalid input syntax for type integer: "NaN"');
+          });
+      });
+    });
+
+    describe('/:article_id/comments', () => {
+      it('POST - 201 - responds with the posted comment', () => {
+        return request(app)
+          .post('/api/articles/2/comments')
+          .send({ username: 'butter_bridge', body: 'very useful article' })
+          .then(({ body: { comment } }) => {
+            expect(comment.author).toBe('butter_bridge');
+            expect(comment.body).toBe('very useful article');
+            expect(comment.article_id).toBe(2);
+            expect(comment.votes).toBe(0);
+          });
+      });
+
+      it('POST - 400 - responds an error message if username is missing', () => {
+        return request(app)
+          .post('/api/articles/2/comments')
+          .send({ body: 'fantastic article' })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              'null value in column "author" violates not-null constraint'
+            );
+          });
+      });
+
+      it('POST - 404 - responds with an error message if the username does not exist in the database', () => {
+        return request(app)
+          .post('/api/articles/2/comments')
+          .send({
+            username: 'NOT_AN_EXISTING_NAME',
+            body: 'fantastic article'
+          })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              'insert or update on table "comments" violates foreign key constraint "comments_author_foreign"'
+            );
+          });
+      });
+
+      it('POST - 400 - responds with an error message if the body is missing', () => {
+        return request(app)
+          .post('/api/articles/2/comments')
+          .send({
+            username: 'butter_bridge'
+          })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              'null value in column "body" violates not-null constraint'
+            );
+          });
+      });
+
+      it('POST - 404 - responds with an error message if article_id was not found', () => {
+        return request(app)
+          .post('/api/articles/100/comments')
+          .send({ username: 'butter_bridge', body: 'fantastic article' })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              'insert or update on table "comments" violates foreign key constraint "comments_article_id_foreign"'
+            );
+          });
+      });
     });
   });
 });
