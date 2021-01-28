@@ -4,8 +4,16 @@ exports.up = function (knex) {
     articlesTable.string('title').notNullable();
     articlesTable.string('body', 10000).notNullable();
     articlesTable.integer('votes').defaultsTo(0);
-    articlesTable.string('topic').references('topics.slug');
-    articlesTable.string('author').references('users.username');
+    articlesTable
+      .string('topic')
+      .references('topics.slug')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE');
+    articlesTable
+      .string('author')
+      .references('users.username')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE');
     articlesTable.timestamp('created_at').defaultTo(knex.fn.now());
   });
 };
