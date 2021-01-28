@@ -49,8 +49,25 @@ const addCommentByArticleId = (article_id, username, body) => {
     .then(([comment]) => comment);
 };
 
+const fetchCommentsByArticleId = (article_id, sort_by, order) => {
+  if (order !== 'asc' && order !== 'desc' && order)
+    return Promise.reject({
+      status: 400,
+      msg: `Bad request: "${order}" cannot be used as order`
+    });
+  return connection
+    .select('*')
+    .from('comments')
+    .orderBy(sort_by || 'created_at', order || 'asc')
+    .where({ article_id })
+    .then((comments) => {
+      return comments;
+    });
+};
+
 module.exports = {
   fetchArticle,
   updateArticle,
-  addCommentByArticleId
+  addCommentByArticleId,
+  fetchCommentsByArticleId
 };

@@ -178,6 +178,66 @@ describe('/api', () => {
             );
           });
       });
+
+      it('GET - 200 - responds with all comments associated with the given article_id', () => {
+        return request(app)
+          .get('/api/articles/1/comments')
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(13);
+            expect(comments[0]).toEqual({
+              article_id: 1,
+              author: 'butter_bridge',
+              body: 'This morning, I showered for nine minutes.',
+              comment_id: 18,
+              created_at: '2000-11-26T12:36:03.389Z',
+              votes: 16
+            });
+          });
+      });
+
+      it('200 - responds with all comments associated with the given article_id sorted in descending order of the created_at key', () => {
+        return request(app)
+          .get('/api/articles/1/comments?order=desc')
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(13);
+            expect(comments).toBeSortedBy('created_at', { descending: true });
+          });
+      });
+
+      it('200 - responds with all comments associated with the given article_id and sorted in descending order of votes', () => {
+        return request(app)
+          .get('/api/articles/1/comments?sort_by=votes&order=desc')
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(13);
+            expect(comments[0].author).toBe('icellusedkars');
+            expect(comments[0].created_at).toBe(
+              new Date(1448282163389).toISOString()
+            );
+            expect(comments[0].votes).toBe(100);
+            expect(comments).toBeSortedBy('votes', { descending: true });
+          });
+      });
+
+      it('400 - responds with an error message if sort_by query is not a column in the database', () => {
+        return request(app)
+          .get('/api/articles/1/comments?sort_by=fruit')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('column "fruit" does not exist');
+          });
+      });
+
+      it('400 - responds with an error message if order query is not asc or desc', () => {
+        return request(app)
+          .get('/api/articles/1/comments?order=INVALID')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('Bad request: "INVALID" cannot be used as order');
+          });
+      });
     });
   });
 });
