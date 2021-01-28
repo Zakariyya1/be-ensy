@@ -4,8 +4,11 @@ const {
   getArticle,
   patchArticle,
   postCommentByArticleId,
-  getCommentsByArticleId
+  getCommentsByArticleId,
+  getAllArticles
 } = require('../controllers/articles-controller');
+
+articlesRouter.route('/').get(getAllArticles);
 
 articlesRouter.route('/:article_id').get(getArticle).patch(patchArticle);
 

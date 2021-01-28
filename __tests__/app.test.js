@@ -196,7 +196,7 @@ describe('/api', () => {
           });
       });
 
-      it('200 - responds with all comments associated with the given article_id sorted in descending order of the created_at key', () => {
+      it('GET - 200 - responds with all comments associated with the given article_id sorted in descending order of the created_at key', () => {
         return request(app)
           .get('/api/articles/1/comments?order=desc')
           .expect(200)
@@ -206,7 +206,7 @@ describe('/api', () => {
           });
       });
 
-      it('200 - responds with all comments associated with the given article_id and sorted in descending order of votes', () => {
+      it('GET - 200 - responds with all comments associated with the given article_id and sorted in descending order of votes', () => {
         return request(app)
           .get('/api/articles/1/comments?sort_by=votes&order=desc')
           .expect(200)
@@ -221,7 +221,7 @@ describe('/api', () => {
           });
       });
 
-      it('400 - responds with an error message if sort_by query is not a column in the database', () => {
+      it('GET - 400 - responds with an error message if sort_by query is not a column in the database', () => {
         return request(app)
           .get('/api/articles/1/comments?sort_by=fruit')
           .expect(400)
@@ -230,12 +230,124 @@ describe('/api', () => {
           });
       });
 
-      it('400 - responds with an error message if order query is not asc or desc', () => {
+      it('GET - 400 - responds with an error message if order query is not asc or desc', () => {
         return request(app)
           .get('/api/articles/1/comments?order=INVALID')
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe('Bad request: "INVALID" cannot be used as order');
+          });
+      });
+    });
+
+    describe('/api/article', () => {
+      it('GET - 200 - responds with all articles sorted in descending order of date', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy('created_at', { descending: true });
+            expect(articles[0].topic).toBe('mitch');
+            expect(articles[0].author).toBe('butter_bridge');
+            expect(articles[0].created_at).toBe(
+              new Date(1542284514171).toISOString()
+            );
+            expect(articles[0].votes).toBe(100);
+            expect(articles[0].comment_count).toBe('13');
+          });
+      });
+
+      it('GET - 200 - responds with all articles sorted by date and in asc order', () => {
+        return request(app)
+          .get('/api/articles?order=asc')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy('created_at');
+          });
+      });
+
+      it('GET - 400 - responds with an error message if order is not asc or desc', () => {
+        return request(app)
+          .get('/api/articles?order=INVALID')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('Bad request: "INVALID" cannot be used as order');
+          });
+      });
+
+      it('GET - 400 - responds with an error message if sort_by is an unknown column', () => {
+        return request(app)
+          .get('/api/articles?sort_by=NOT_A_COLUMN')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('column articles.NOT_A_COLUMN does not exist');
+          });
+      });
+
+      it('GET - 200 - responds with all articles sorted by votes and in asc order', () => {
+        return request(app)
+          .get('/api/articles?sort_by=votes&order=asc')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy('votes');
+          });
+      });
+
+      it('GET - 200 - responds with all articles related to specified author', () => {
+        return request(app)
+          .get('/api/articles?author=butter_bridge')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(3);
+            expect(articles[0].author).toBe('butter_bridge');
+            expect(articles[0].votes).toBe(100);
+            expect(articles[0].created_at).toBe(
+              new Date(1542284514171).toISOString()
+            );
+          });
+      });
+
+      it('GET - 404 - responds with an error if there are no articles found for the specified author', () => {
+        return request(app)
+          .get('/api/articles?author=NOT_A_VALID_NAME')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('No article found for "NOT_A_VALID_NAME"');
+          });
+      });
+
+      it('GET - 200 - responds with all articles related to specified topic', () => {
+        return request(app)
+          .get('/api/articles?topic=mitch')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(11);
+            expect(articles[0].topic).toBe('mitch');
+          });
+      });
+
+      it('GET - 404 - responds with an error if there are no articles found for the specified topic', () => {
+        return request(app)
+          .get('/api/articles?topic=NOT_A_VALID_NAME')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('No article found for "NOT_A_VALID_NAME"');
+          });
+      });
+
+      it('GET - 200 - responds with the articles if the author, topic, sort_by and order are all set', () => {
+        return request(app)
+          .get(
+            '/api/articles?topic=mitch&author=icellusedkars&sort_by=title&order=asc'
+          )
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(6);
+            expect(articles).toBeSortedBy('title');
+            expect(articles[0].title).toBe('A');
           });
       });
     });

@@ -2,8 +2,16 @@ const {
   fetchArticle,
   updateArticle,
   addCommentByArticleId,
-  fetchCommentsByArticleId
+  fetchCommentsByArticleId,
+  fetchAllArticles
 } = require('../models/articles-model');
+
+exports.getAllArticles = (req, res, next) => {
+  const endpointQuery = req.query;
+  fetchAllArticles(endpointQuery)
+    .then((articles) => res.status(200).send({ articles }))
+    .catch(next);
+};
 
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
