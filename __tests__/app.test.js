@@ -48,6 +48,118 @@ describe('/api', () => {
   });
 
   describe('/articles', () => {
+    describe('/', () => {
+      it('GET - 200 - responds with all articles sorted in descending order of date', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy('created_at', { descending: true });
+            expect(articles[0].topic).toBe('mitch');
+            expect(articles[0].author).toBe('butter_bridge');
+            expect(articles[0].created_at).toBe(
+              new Date(1542284514171).toISOString()
+            );
+            expect(articles[0].votes).toBe(100);
+            expect(articles[0].comment_count).toBe('13');
+          });
+      });
+
+      it('GET - 200 - responds with all articles sorted by date and in asc order', () => {
+        return request(app)
+          .get('/api/articles?order=asc')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy('created_at');
+          });
+      });
+
+      it('GET - 400 - responds with an error message if order is not asc or desc', () => {
+        return request(app)
+          .get('/api/articles?order=INVALID')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('Bad request: "INVALID" cannot be used as order');
+          });
+      });
+
+      it('GET - 400 - responds with an error message if sort_by is an unknown column', () => {
+        return request(app)
+          .get('/api/articles?sort_by=NOT_A_COLUMN')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('column articles.NOT_A_COLUMN does not exist');
+          });
+      });
+
+      it('GET - 200 - responds with all articles sorted by votes and in asc order', () => {
+        return request(app)
+          .get('/api/articles?sort_by=votes&order=asc')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy('votes');
+          });
+      });
+
+      it('GET - 200 - responds with all articles related to specified author', () => {
+        return request(app)
+          .get('/api/articles?author=butter_bridge')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(3);
+            expect(articles[0].author).toBe('butter_bridge');
+            expect(articles[0].votes).toBe(100);
+            expect(articles[0].created_at).toBe(
+              new Date(1542284514171).toISOString()
+            );
+          });
+      });
+
+      it('GET - 404 - responds with an error if there are no articles found for the specified author', () => {
+        return request(app)
+          .get('/api/articles?author=NOT_A_VALID_NAME')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('No article found for "NOT_A_VALID_NAME"');
+          });
+      });
+
+      it('GET - 200 - responds with all articles related to specified topic', () => {
+        return request(app)
+          .get('/api/articles?topic=mitch')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(11);
+            expect(articles[0].topic).toBe('mitch');
+          });
+      });
+
+      it('GET - 404 - responds with an error if there are no articles found for the specified topic', () => {
+        return request(app)
+          .get('/api/articles?topic=NOT_A_VALID_NAME')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe('No article found for "NOT_A_VALID_NAME"');
+          });
+      });
+
+      it('GET - 200 - responds with the articles if the author, topic, sort_by and order are all set', () => {
+        return request(app)
+          .get(
+            '/api/articles?topic=mitch&author=icellusedkars&sort_by=title&order=asc'
+          )
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(6);
+            expect(articles).toBeSortedBy('title');
+            expect(articles[0].title).toBe('A');
+          });
+      });
+    });
+
     describe('/:article_id', () => {
       it('GET - 200 - responds with an article object associated with the given article_id', () => {
         return request(app)
@@ -239,117 +351,92 @@ describe('/api', () => {
           });
       });
     });
+  });
 
-    describe('/api/article', () => {
-      it('GET - 200 - responds with all articles sorted in descending order of date', () => {
-        return request(app)
-          .get('/api/articles')
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(12);
-            expect(articles).toBeSortedBy('created_at', { descending: true });
-            expect(articles[0].topic).toBe('mitch');
-            expect(articles[0].author).toBe('butter_bridge');
-            expect(articles[0].created_at).toBe(
-              new Date(1542284514171).toISOString()
-            );
-            expect(articles[0].votes).toBe(100);
-            expect(articles[0].comment_count).toBe('13');
+  describe('/comments/:comment_id', () => {
+    it('PATCH - 201 - responds with the updated comment', () => {
+      return request(app)
+        .patch('/api/comments/1')
+        .send({ inc_votes: 1 })
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          expect(comment).toEqual({
+            comment_id: 1,
+            body:
+              "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            author: 'butter_bridge',
+            votes: 17,
+            article_id: 9,
+            created_at: new Date(1511354163389).toISOString()
           });
-      });
+        });
+    });
 
-      it('GET - 200 - responds with all articles sorted by date and in asc order', () => {
-        return request(app)
-          .get('/api/articles?order=asc')
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(12);
-            expect(articles).toBeSortedBy('created_at');
-          });
-      });
+    it('PATCH - 400 - responds with an error message if comment_id is not specified as a number', () => {
+      return request(app)
+        .patch('/api/comments/INVALID_NUMBER')
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'invalid input syntax for type integer: "INVALID_NUMBER"'
+          );
+        });
+    });
 
-      it('GET - 400 - responds with an error message if order is not asc or desc', () => {
-        return request(app)
-          .get('/api/articles?order=INVALID')
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe('Bad request: "INVALID" cannot be used as order');
-          });
-      });
+    it('PATCH - 404 - responds with an error message if comment_id cannot be found in the database', () => {
+      return request(app)
+        .patch('/api/comments/10000')
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe('No comment found for "10000"');
+        });
+    });
 
-      it('GET - 400 - responds with an error message if sort_by is an unknown column', () => {
-        return request(app)
-          .get('/api/articles?sort_by=NOT_A_COLUMN')
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe('column articles.NOT_A_COLUMN does not exist');
-          });
-      });
+    it('PATCH - 400 - responds with an error message if no inc_vote is provided', () => {
+      return request(app)
+        .patch('/api/comments/1')
+        .send({})
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe('invalid input syntax for type integer: "NaN"');
+        });
+    });
 
-      it('GET - 200 - responds with all articles sorted by votes and in asc order', () => {
-        return request(app)
-          .get('/api/articles?sort_by=votes&order=asc')
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(12);
-            expect(articles).toBeSortedBy('votes');
-          });
-      });
+    it('PATCH - 400 - responds with an error message if inc_votes contains invalid data', () => {
+      return request(app)
+        .patch('/api/comments/1')
+        .send({ inc_votes: 'INVALID' })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'invalid input syntax for type integer: "16INVALID"'
+          );
+        });
+    });
 
-      it('GET - 200 - responds with all articles related to specified author', () => {
-        return request(app)
-          .get('/api/articles?author=butter_bridge')
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(3);
-            expect(articles[0].author).toBe('butter_bridge');
-            expect(articles[0].votes).toBe(100);
-            expect(articles[0].created_at).toBe(
-              new Date(1542284514171).toISOString()
-            );
-          });
-      });
+    it('PATCH - 422 - responds with an error message if extra key-value pairs are sent with the patch', () => {
+      return request(app)
+        .patch('/api/comments/1')
+        .send({ inc_votes: 1, name: 'Mitch' })
+        .expect(422)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe('cannot process the entity');
+        });
+    });
 
-      it('GET - 404 - responds with an error if there are no articles found for the specified author', () => {
-        return request(app)
-          .get('/api/articles?author=NOT_A_VALID_NAME')
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe('No article found for "NOT_A_VALID_NAME"');
-          });
-      });
+    it('DELETE - 204 - responds with no content status code after deleting', () => {
+      return request(app).delete('/api/comments/1').expect(204);
+    });
 
-      it('GET - 200 - responds with all articles related to specified topic', () => {
-        return request(app)
-          .get('/api/articles?topic=mitch')
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(11);
-            expect(articles[0].topic).toBe('mitch');
-          });
-      });
-
-      it('GET - 404 - responds with an error if there are no articles found for the specified topic', () => {
-        return request(app)
-          .get('/api/articles?topic=NOT_A_VALID_NAME')
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe('No article found for "NOT_A_VALID_NAME"');
-          });
-      });
-
-      it('GET - 200 - responds with the articles if the author, topic, sort_by and order are all set', () => {
-        return request(app)
-          .get(
-            '/api/articles?topic=mitch&author=icellusedkars&sort_by=title&order=asc'
-          )
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(6);
-            expect(articles).toBeSortedBy('title');
-            expect(articles[0].title).toBe('A');
-          });
-      });
+    it('DELETE - 404 - responds with an error message if comment_id does not exist', () => {
+      return request(app)
+        .delete('/api/comments/999')
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe('No comment found for "999"');
+        });
     });
   });
 });
