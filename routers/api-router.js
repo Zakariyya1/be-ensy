@@ -4,7 +4,7 @@ const apiRouter = express.Router();
 const topicsRouter = require('./topics-router');
 const usersRouter = require('./users-router');
 const commentsRouter = require('./comments-router');
-import endpoints from '../endpoints.json';
+const endpoints = require('../endpoints.json');
 
 apiRouter.use('/topics', topicsRouter);
 apiRouter.use('/users', usersRouter);
