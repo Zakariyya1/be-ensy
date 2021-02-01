@@ -179,7 +179,7 @@ describe('/api', () => {
           });
       });
 
-      it('GET - 400 - responds with a bad request error message if user was not requested with a number', () => {
+      it('GET - 400 - responds with an error message if user was not requested with a number', () => {
         return request(app)
           .get('/api/articles/Living_in_the_shadow_of_a_great_man')
           .expect(400)
