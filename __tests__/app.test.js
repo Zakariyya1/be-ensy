@@ -7,6 +7,197 @@ describe('/api', () => {
   afterAll(() => connection.destroy());
   beforeEach(() => connection.seed.run());
 
+  it('GET - 200 - responds with all available endpoints in json format', () => {
+    return request(app)
+      .get('/api')
+      .expect(200)
+      .then(({ body: endpoints }) => {
+        console.log(endpoints);
+        expect(endpoints).toEqual({
+          'GET /api': {
+            description:
+              'serves up a json representation of all the available endpoints of the api'
+          },
+          'GET /api/topics': {
+            description: 'serves an array of all topics',
+            queries: [],
+            exampleResponse: {
+              topics: [{ slug: 'football', description: 'Footie!' }]
+            }
+          },
+          'GET /api/articles': {
+            description: 'serves an array of all topics',
+            queries: ['author', 'topic', 'sort_by', 'order', 'limit', 'p'],
+            exampleResponse: {
+              total_count: 12,
+              articles: [
+                {
+                  article_id: 1,
+                  title: 'Living in the shadow of a great man',
+                  topic: 'mitch',
+                  author: 'butter_bridge',
+                  created_at: '2018-11-15T12:21:54.171Z',
+                  votes: 100,
+                  comment_count: '13'
+                }
+              ]
+            }
+          },
+          'GET /api/articles/:article_id': {
+            description:
+              "serves a JSON object of the article specified by 'article_id'",
+            parametricEndpoint: '/:article_id - integer required',
+            exampleResponse: {
+              article_id: 1,
+              title: 'Living in the shadow of a great man',
+              body: 'I find this existence challenging',
+              topic: 'mitch',
+              author: 'butter_bridge',
+              created_at: '2018-11-15T12:21:54.171Z',
+              votes: 100,
+              comment_count: '13'
+            }
+          },
+          'PATCH /api/articles/:article_id': {
+            description:
+              "updates 'votes' of the article specified by 'article_id' and serves a JSON object of the updated article",
+            parametricEndpoint: '/:article_id - integer required',
+            exampleRequestBody: {
+              inc_vote: 1
+            },
+            exampleResponse: {
+              article: {
+                article_id: 1,
+                title: 'Living in the shadow of a great man',
+                body: 'I find this existence challenging',
+                topic: 'mitch',
+                author: 'butter_bridge',
+                created_at: '2018-11-15T12:21:54.171Z',
+                votes: 100,
+                comment_count: '13'
+              }
+            }
+          },
+          'GET /api/users/:username': {
+            description:
+              "serves a JSON object of the user specified by 'username'",
+            parametricEndpoint: '/:username',
+            exampleResponse: {
+              user: {
+                username: 'icellusedkars',
+                name: 'Sam',
+                avatar_url:
+                  'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'
+              }
+            }
+          },
+          'POST /api/articles/:article_id/comments': {
+            description:
+              "creates a new comment for the article specified by 'article_id' and serves a JSON object of the posted comment",
+            exampleRequestBody: {
+              username: 'user',
+              body: 'good'
+            },
+            parametricEndpoint: '/:article_id - integer required',
+            exampleResponse: {
+              comment: {
+                author: 'user',
+                body: 'good'
+              }
+            }
+          },
+          'GET /api/articles/:article_id/comments': {
+            description: "serves an array of comments for 'article_id'",
+            parametricEndpoint: '/:article_id - integer required',
+            queries: ['sort_by', 'order'],
+            exampleResponse: {
+              comments: [
+                {
+                  comment_id: 1,
+                  votes: 16,
+                  created_at: '2017-11-22T12:36:03.389Z',
+                  author: 'butter_bridge',
+                  article_id: 9,
+                  body:
+                    "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+                }
+              ]
+            }
+          },
+          'PATCH /api/comments/:comment_id': {
+            description:
+              "updates the comment by 'comment_id and serves the updated comment",
+            parametricEndpoint: '/:comment_id - integer required',
+            exampleRequestBody: {
+              inc_votes: 1
+            },
+            exampleResponse: {
+              comment: {
+                comment_id: 1,
+                body:
+                  "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                author: 'butter_bridge',
+                votes: 17,
+                article_id: 9,
+                created_at: '2017-11-22T12:36:03.389Z'
+              }
+            }
+          },
+          'DELETE /api/comments/:comment_id': {
+            description:
+              "deletes the comment specified by 'comment_id' with no content served back (204)",
+            parametricEndpoint: '/:comment_id - integer required'
+          },
+          'DELETE /api/articles/:article_id': {
+            description:
+              "deletes the article specified by 'article_id' with no content served back (204)",
+            parametricEndpoint: '/:article_id - integer required'
+          },
+          'POST /api/topics': {
+            description: 'creates a new topic and serves the added topic back',
+            exampleRequestBody: {
+              slug: 'user',
+              description: 'good'
+            },
+            exampleResponse: {
+              topic: {
+                slug: 'user',
+                description: 'good'
+              }
+            }
+          },
+          'POST /api/users': {
+            description: 'creates a new user and serves the added user back',
+            exampleRequestBody: {
+              username: 'testuser',
+              name: 'testuser',
+              avatar_url: 'placeholder'
+            },
+            exampleResponse: {
+              user: {
+                username: 'testuser',
+                name: 'user',
+                avatar_url: 'placeholder'
+              }
+            }
+          },
+          'GET /api/users': {
+            description: 'serves an array of users',
+            queries: ['sort_by', 'order'],
+            exampleResponse: {
+              users: [
+                {
+                  username: 'testuser',
+                  name: 'testuser',
+                  avatar_url: 'placeholder'
+                }
+              ]
+            }
+          }
+        });
+      });
+  });
+
   describe('/topics', () => {
     it('GET - 200 - responds with an array of topics', () => {
       return request(app)
