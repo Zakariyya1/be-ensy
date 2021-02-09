@@ -12,7 +12,6 @@ describe('/api', () => {
       .get('/api')
       .expect(200)
       .then(({ body: endpoints }) => {
-        console.log(endpoints);
         expect(endpoints).toEqual({
           'GET /api': {
             description:
@@ -204,11 +203,11 @@ describe('/api', () => {
         .get('/api/topics')
         .expect(200)
         .then(({ body: { topics } }) => {
-          expect(topics).toEqual(
+          expect(topics).toEqual([
             { slug: 'mitch', description: 'The man, the Mitch, the legend' },
             { slug: 'cats', description: 'Not dogs' },
             { slug: 'paper', description: 'what books are made of' }
-          );
+          ]);
         });
     });
   });
