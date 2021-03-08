@@ -7,7 +7,7 @@ const {
   handleServerErr
 } = require('./controllers/errors-controller');
 const apiRouter = require('./routers/api-router');
-const { getAllEndpoints } = require('../controllers/endpoints-controller');
+const { getAllEndpoints } = require('./controllers/endpoints-controller');
 
 app.use(cors());
 
