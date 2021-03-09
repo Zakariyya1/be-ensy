@@ -7,13 +7,11 @@ const {
   handleServerErr
 } = require('./controllers/errors-controller');
 const apiRouter = require('./routers/api-router');
-const { getAllEndpoints } = require('./controllers/endpoints-controller');
 
 app.use(cors());
 
 app.use(express.json());
 
-app.use('/', getAllEndpoints);
 app.use('/api', apiRouter);
 
 app.all('/*', (req, res, next) => {
