@@ -1,4 +1,4 @@
-# NC News API
+# Ensy API
 
 This project is a news API which has been built with psql as the database. Knex is used to interact with the database.
 
@@ -22,7 +22,7 @@ To run this project, please ensure [Node.js](https://nodejs.org/en/download/) an
 To clone the repository use the following command in your terminal:
 
 ```
-git clone https://github.com/Zakariyya1/be-nc-news.git
+git clone https://github.com/Zakariyya1/be-ensy.git
 ```
 
 Once cloned, install dependencies:
