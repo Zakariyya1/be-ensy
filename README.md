@@ -4,7 +4,7 @@ This project is a news API which has been built with psql as the database. Knex 
 
 The API responds with the data needed to build a news site. Data contains topics, articles, comments and users.
 
-A hosted version can be found on [Heroku](http://be-nc-news-api.herokuapp.com/api)
+A hosted version can be found on [Heroku](http://be-ensy.herokuapp.com/api)
 
 ## Tech:
 
